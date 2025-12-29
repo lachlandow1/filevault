@@ -1,0 +1,14 @@
+services:
+  azure-sa:
+    build:
+      context: ./src/azure-sa
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - ./src/azure-sa/uploads:/app/uploads
+      - ./src/azure-sa/filesData.json:/app/filesData.json
+    env_file:
+      - ./src/azure-sa/.env
+    environment:
+      - PORT=3000
