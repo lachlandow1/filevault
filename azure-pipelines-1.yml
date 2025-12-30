@@ -1,0 +1,48 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+
+resources:
+  repositories:
+  - repository: self
+
+variables:
+- name: dockerRegistryServiceConnection
+  value: 'b695fff1-df6e-498b-bc69-6efbe5b01da9'
+- name: imageRepository
+  value: 'lachlandowfilevault'
+- name: containerRegistry
+  value: 'filevaultsaacrdv0m7x.azurecr.io'
+- name: dockerfilePath
+  value: '$(Build.SourcesDirectory)/src/azure-sa/Dockerfile'
+- name: tag
+  value: '$(Build.BuildId)'
+- name: vmImageName
+  value: 'ubuntu-latest'
+  
+pool:
+  name: Default
+stages:
+- stage: Test
+  displayName: Run linting and tests
+  jobs:
+  - job: Test
+    displayName: Test
+    pool:
+      name: Default
+    steps:
+    - script: npm install
+      workingDirectory: src/azure-sa
+      displayName: 'Install dependencies'
+    - script: npm run lint
+      workingDirectory: src/azure-sa
+      displayName: 'Run linting'
+    - script: npm run test
+      workingDirectory: src/azure-sa
+      displayName: 'Run jest tests'
+
