@@ -7,7 +7,7 @@ resource "azurerm_service_plan" "asp" {
 }
 
 resource "azurerm_linux_web_app" "app" {
-  name                = "${var.app_name}-web-${random_string.suffix.result}"
+  name                = "${var.app_name}-web"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_service_plan.asp.location
   service_plan_id     = azurerm_service_plan.asp.id
