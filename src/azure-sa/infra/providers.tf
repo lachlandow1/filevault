@@ -5,6 +5,10 @@ terraform {
       version = "~> 3.0"
     }
   }
+
+  backend "azurerm" {
+    # stored in backend.bk
+  }
 }
 
 provider "azurerm" {
