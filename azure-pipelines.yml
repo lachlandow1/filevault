@@ -10,9 +10,9 @@ resources:
 - repo: self
 
 variables:
-  dockerRegistryServiceConnection: 'b695fff1-df6e-498b-bc69-6efbe5b01da9'
+  dockerRegistryServiceConnection: '0f5fac4c-ba7e-477c-9561-2d306817e091'
   imageRepository: 'lachlandowfilevault'
-  containerRegistry: 'filevaultsaacrdv0m7x.azurecr.io'
+  containerRegistry: 'filevaultacr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/src/azure-sa/Dockerfile'
   tag: '$(Build.BuildId)'
 
