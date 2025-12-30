@@ -4,7 +4,12 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - src/azure-sa/infra
 
 
 resources:
@@ -36,6 +41,15 @@ stages:
     pool:
       name: Default
     steps:
+    - task: SonarQubePrepare@5
+      displayName: 'Run sonarqube prepare'
+      inputs:
+        SonarQube: 'YourSonarQubeServiceConnection'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'YourProjectKey'
+        cliProjectName: 'YourProjectName'
+        cliSources: 'src/azure-sa'
     - script: npm install
       workingDirectory: src/azure-sa
       displayName: 'Install dependencies'
@@ -45,4 +59,10 @@ stages:
     - script: npm run test
       workingDirectory: src/azure-sa
       displayName: 'Run jest tests'
+    - task: SonarQubeAnalyze@5
+      displayName: 'Run sonarqube analyze'
+    - task: SonarQubePublish@5
+      displayName: 'Run sonarqube publish'
+      inputs:
+        pollingTimeoutSec: '300'
 

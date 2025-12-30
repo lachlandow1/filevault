@@ -5,6 +5,9 @@ trigger:
   branches:
     include:
       - main
+  paths:
+    exclude:
+      - src/azure-sa/infra
 
 resources:
 - repo: self

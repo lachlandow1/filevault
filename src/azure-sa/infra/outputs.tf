@@ -36,3 +36,11 @@ output "container_registry_admin_password" {
   sensitive = true
 }
 
+
+output "sonarqube_ip_address" {
+  value = azurerm_container_group.sonarqube.ip_address
+}
+
+output "sonarqube_fqdn" {
+  value = azurerm_container_group.sonarqube.fqdn
+}
