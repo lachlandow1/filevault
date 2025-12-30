@@ -1,27 +1,36 @@
-resource "azurerm_service_plan" "asp" {
-  name                = "${var.app_name}-plan"
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_container_group" "aci" {
+  name                = "${var.app_name}-aci"
   location            = azurerm_resource_group.rg.location
-  os_type             = "Linux"
-  sku_name            = "B1"
-}
-
-resource "azurerm_linux_web_app" "app" {
-  name                = "${var.app_name}-web"
   resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_service_plan.asp.location
-  service_plan_id     = azurerm_service_plan.asp.id
+  ip_address_type     = "Public"
+  dns_name_label      = "${var.app_name}-aci"
+  os_type             = "Linux"
 
-  site_config {
-    application_stack {
-      node_version = "20-lts"
+  container {
+    name   = var.app_name
+    image  = "${azurerm_container_registry.acr.login_server}/${var.image_name}:latest"
+    cpu    = "1.0"
+    memory = "2.0"
+
+    ports {
+      port     = 3000
+      protocol = "TCP"
+    }
+
+    environment_variables = {
+      "AZURE_STORAGE_ACCOUNT_NAME" = azurerm_storage_account.sa.name
+      "AZURE_CONTAINER_NAME"       = azurerm_storage_container.container.name
+      "PORT"                       = "3000"
+    }
+
+    secure_environment_variables = {
+      "AZURE_STORAGE_ACCOUNT_KEY" = azurerm_key_vault_secret.storage_key.value
     }
   }
 
-  app_settings = {
-    "AZURE_STORAGE_ACCOUNT_NAME" = azurerm_storage_account.sa.name
-    "AZURE_STORAGE_ACCOUNT_KEY"  = azurerm_storage_account.sa.primary_access_key
-    "AZURE_CONTAINER_NAME"       = azurerm_storage_container.container.name
-    "PORT"                       = "8080" # App Service expects 8080 usually, or we can use WEBSITES_PORT
+  image_registry_credential {
+    server   = azurerm_container_registry.acr.login_server
+    username = azurerm_container_registry.acr.admin_username
+    password = azurerm_container_registry.acr.admin_password
   }
 }

@@ -1,0 +1,6 @@
+variables:
+  dockerRegistryServiceConnection: '0f5fac4c-ba7e-477c-9561-2d306817e091'
+  imageRepository: 'lachlandowfilevault'
+  containerRegistry: 'filevaultsaacr.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/src/azure-sa/Dockerfile'
+  tag: '$(Build.BuildId)'

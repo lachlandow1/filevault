@@ -10,14 +10,13 @@ output "storage_container_name" {
   value = azurerm_storage_container.container.name
 }
 
-output "web_app_default_hostname" {
-  value = azurerm_linux_web_app.app.default_hostname
+output "aci_fqdn" {
+  value = azurerm_container_group.aci.fqdn
 }
 
-output "web_app_name" {
-  value = azurerm_linux_web_app.app.name
+output "aci_ip_address" {
+  value = azurerm_container_group.aci.ip_address
 }
-
 
 output "container_registry_name" {
   value = azurerm_container_registry.acr.name
@@ -36,3 +35,10 @@ output "container_registry_admin_password" {
   sensitive = true
 }
 
+output "sonarqube_ip_address" {
+  value = azurerm_container_group.sonarqube.ip_address
+}
+
+output "sonarqube_fqdn" {
+  value = azurerm_container_group.sonarqube.fqdn
+}

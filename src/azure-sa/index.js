@@ -4,6 +4,12 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+console.log("Starting application...");
+console.log(`AZURE_STORAGE_ACCOUNT_NAME: ${process.env.AZURE_STORAGE_ACCOUNT_NAME}`);
+console.log(`AZURE_CONTAINER_NAME: ${process.env.AZURE_CONTAINER_NAME}`);
+// Do not log the actual key, just check if it exists
+console.log(`AZURE_STORAGE_ACCOUNT_KEY length: ${process.env.AZURE_STORAGE_ACCOUNT_KEY ? process.env.AZURE_STORAGE_ACCOUNT_KEY.length : 'undefined'}`);
+
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 
 const app = express();
@@ -11,17 +17,30 @@ const PORT = process.env.PORT || 3000;
 
 const upload = multer({ dest: 'uploads/' });
 
-const sharedKeyCredential = new StorageSharedKeyCredential(
-    process.env.AZURE_STORAGE_ACCOUNT_NAME,
-    process.env.AZURE_STORAGE_ACCOUNT_KEY
-);
+let containerClient;
 
-const blobServiceClient = new BlobServiceClient(
-    `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    sharedKeyCredential
-);
+try {
+    if (!process.env.AZURE_STORAGE_ACCOUNT_NAME || !process.env.AZURE_STORAGE_ACCOUNT_KEY) {
+        throw new Error("Missing Azure Storage credentials");
+    }
 
-const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_CONTAINER_NAME);
+    const sharedKeyCredential = new StorageSharedKeyCredential(
+        process.env.AZURE_STORAGE_ACCOUNT_NAME,
+        process.env.AZURE_STORAGE_ACCOUNT_KEY
+    );
+
+    const blobServiceClient = new BlobServiceClient(
+        `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+        sharedKeyCredential
+    );
+
+    containerClient = blobServiceClient.getContainerClient(process.env.AZURE_CONTAINER_NAME);
+    console.log("Azure Storage clients initialized successfully");
+
+} catch (error) {
+    console.error("Failed to initialize Azure Storage clients:", error);
+    process.exit(1);
+}
 
 const filesDataPath = './filesData.json';
 

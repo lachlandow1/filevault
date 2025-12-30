@@ -16,6 +16,12 @@ variable "app_name" {
   default     = "filevault-sa"
 }
 
+variable "image_name" {
+  description = "The name of the docker image repository"
+  type        = string
+  default     = "lachlandowfilevault"
+}
+
 variable "environment" {
   description = "The deployment environment (e.g., dev, prod)"
   type        = string

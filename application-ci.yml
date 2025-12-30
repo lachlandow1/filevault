@@ -1,0 +1,58 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - src/azure-sa/infra
+
+
+resources:
+  repositories:
+  - repository: self
+  
+pool:
+  name: Default
+stages:
+- stage: Test
+  displayName: Run linting and tests
+  jobs:
+  - job: Test
+    displayName: Test
+    pool:
+      name: Default
+    steps:
+    - task: SonarQubePrepare@8
+      inputs:
+        SonarQube: 'filevault-sonarqube'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'filevault-sonarqube'
+        cliProjectName: 'filevault-sonarqube'
+        cliSources: 'src/azure-sa'
+    - bash: |
+        NEW_PARAMS=$(echo $SONARQUBE_SCANNER_PARAMS | sed 's/"sonar.branch.name":"[^"]*"//g' | sed 's/,,/,/g' | sed 's/,}/}/g')
+        echo "##vso[task.setvariable variable=SONARQUBE_SCANNER_PARAMS]$NEW_PARAMS"
+        echo "Filtered out sonar.branch.name for Community Edition"
+      displayName: 'Fix SonarQube Community Parameters'
+    - script: npm install
+      workingDirectory: src/azure-sa
+      displayName: 'Install dependencies'
+    - script: npm run lint
+      workingDirectory: src/azure-sa
+      displayName: 'Run linting'
+    - script: npm run test
+      workingDirectory: src/azure-sa
+      displayName: 'Run jest tests'
+    - task: SonarQubeAnalyze@8
+      env:
+        sonar.branch.name: ""
+    - task: SonarQubePublish@8
+      inputs:
+        pollingTimeoutSec: '300'
+
