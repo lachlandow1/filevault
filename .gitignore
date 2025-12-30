@@ -29,3 +29,12 @@ Thumbs.db
 
 # Uploads
 **/uploads/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+
