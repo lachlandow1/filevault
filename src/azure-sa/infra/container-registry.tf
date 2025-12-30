@@ -1,8 +1,8 @@
 
 resource "azurerm_container_registry" "acr" {
-  name                     = "${replace(var.app_name, "-", "")}acr${random_string.suffix.result}"
+  name                = "${replace(var.app_name, "-", "")}acr${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
-  admin_enabled       = true   
+  admin_enabled       = true
 }

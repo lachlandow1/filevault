@@ -1,0 +1,47 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - src/azure-sa/infra
+
+pool:
+  name: Default
+
+variables:
+  - group: terraform-state-variables
+
+stages:
+- stage: Terraform_Deploy
+  displayName: 'Terraform Deploy'
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy Infrastructure'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+
+    - task: AzureCLI@2
+      displayName: 'Terraform Init & Apply'
+      inputs:
+        azureSubscription: $(azureServiceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        addSpnToEnvironment: true
+        workingDirectory: 'src/azure-sa/infra'
+        inlineScript: |
+          echo "Initializing Terraform..."
+          terraform init \
+            -backend-config="resource_group_name=$(backendResourceGroup)" \
+            -backend-config="storage_account_name=$(backendStorageAccount)" \
+            -backend-config="container_name=$(backendContainer)" \
+            -backend-config="key=$(backendKey)"
+
+          echo "Planning..."
+          terraform plan -out=tfplan
+
+          echo "Applying..."
+          terraform apply -auto-approve tfplan
