@@ -42,3 +42,11 @@ output "sonarqube_ip_address" {
 output "sonarqube_fqdn" {
   value = azurerm_container_group.sonarqube.fqdn
 }
+
+output "log_analytics_workspace_id" {
+  value = azurerm_log_analytics_workspace.law.id
+}
+
+output "log_analytics_workspace_name" {
+  value = azurerm_log_analytics_workspace.law.name
+}

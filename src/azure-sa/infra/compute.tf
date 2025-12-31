@@ -33,4 +33,11 @@ resource "azurerm_container_group" "aci" {
     username = azurerm_container_registry.acr.admin_username
     password = azurerm_container_registry.acr.admin_password
   }
+
+  diagnostics {
+    log_analytics {
+      workspace_id  = azurerm_log_analytics_workspace.law.workspace_id
+      workspace_key = azurerm_log_analytics_workspace.law.primary_shared_key
+    }
+  }
 }
