@@ -28,17 +28,15 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
 
     - script: |
-        docker buildx create --use --name multiplatform-builder || true
-        docker buildx build \
-          --platform linux/amd64 \
+        docker build \
           --tag $(containerRegistry)/$(imageRepository):$(tag) \
           --tag $(containerRegistry)/$(imageRepository):latest \
-          --push \
           -f $(dockerfilePath) \
           $(Build.SourcesDirectory)/src/azure-sa
-      displayName: Build and Push (amd64)
-      env:
-        DOCKER_CLI_EXPERIMENTAL: enabled
+        
+        docker push $(containerRegistry)/$(imageRepository):$(tag)
+        docker push $(containerRegistry)/$(imageRepository):latest
+      displayName: Build and Push (standard)
 
 - stage: Deploy
   displayName: Deploy to AKS
