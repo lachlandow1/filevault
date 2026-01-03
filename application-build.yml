@@ -33,3 +33,23 @@ stages:
       displayName: Build and Push (amd64)
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
+
+- stage: Deploy
+  displayName: Deploy to AKS
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: Deploy
+    displayName: Deploy Manifests
+    pool:
+      name: Default
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '$(azureSubscriptionConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName) --overwrite-existing
+          kubectl apply -f src/azure-sa/k8s/
+      displayName: 'Apply Kubernetes Manifests'

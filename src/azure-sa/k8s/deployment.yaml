@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filevault-deployment
+  labels:
+    app: filevault
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filevault
+  template:
+    metadata:
+      labels:
+        app: filevault
+    spec:
+      containers:
+      - name: filevault
+        image: filevaultsaacr.azurecr.io/lachlandowfilevault:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10

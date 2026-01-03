@@ -4,3 +4,5 @@ variables:
   containerRegistry: 'filevaultsaacr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/src/azure-sa/Dockerfile'
   tag: '$(Build.BuildId)'
+  resourceGroupName: 'filevault-rg'
+  aksClusterName: 'filevault-sa-aks'
