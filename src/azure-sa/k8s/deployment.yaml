@@ -26,6 +26,21 @@ spec:
           requests:
             memory: "256Mi"
             cpu: "250m"
+        env:
+        - name: PORT
+          value: "3000"
+        - name: AZURE_CONTAINER_NAME
+          value: "filevault-container"
+        - name: AZURE_STORAGE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: filevault-secrets
+              key: AZURE_STORAGE_ACCOUNT_NAME
+        - name: AZURE_STORAGE_ACCOUNT_KEY
+          valueFrom:
+            secretKeyRef:
+              name: filevault-secrets
+              key: AZURE_STORAGE_ACCOUNT_KEY
         livenessProbe:
           httpGet:
             path: /

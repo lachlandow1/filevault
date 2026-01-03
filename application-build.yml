@@ -60,5 +60,20 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
           az aks get-credentials --resource-group $(resourceGroupName) --name $(aksClusterName) --overwrite-existing
+          
+          # Fetch Storage Account Name (we know the pattern or can query it)
+          # We'll assume the RG has only one SA for this app, or construct it matching terraform logic: filevaultsa...
+          # Actually, let's query it by tag to be safe, or just list in RG
+          STORAGE_ACCOUNT_NAME=$(az storage account list -g $(resourceGroupName) --query "[0].name" -o tsv)
+          
+          # Fetch Access Key
+          ACCESS_KEY=$(az storage account keys list -g $(resourceGroupName) -n $STORAGE_ACCOUNT_NAME --query "[0].value" -o tsv)
+          
+          # Create/Update Secret
+          kubectl create secret generic filevault-secrets \
+            --from-literal=AZURE_STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME \
+            --from-literal=AZURE_STORAGE_ACCOUNT_KEY=$ACCESS_KEY \
+            --dry-run=client -o yaml | kubectl apply -f -
+            
           kubectl apply -f src/azure-sa/k8s/
-      displayName: 'Apply Kubernetes Manifests'
+      displayName: 'Apply Kubernetes Manifests and Secrets'
