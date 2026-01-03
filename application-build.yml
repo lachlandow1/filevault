@@ -48,6 +48,11 @@ stages:
     pool:
       name: Default
     steps:
+    - script: |
+        echo "Debugging Variable:"
+        echo "azureSubscriptionConnection is: $(azureSubscriptionConnection)"
+      displayName: 'Debug Variable'
+
     - task: AzureCLI@2
       inputs:
         azureSubscription: '$(azureSubscriptionConnection)'
