@@ -27,3 +27,15 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "aks_node_count" {
+  description = "The number of nodes in the default node pool"
+  type        = number
+  default     = 1
+}
+
+variable "aks_vm_size" {
+  description = "The VM size for the default node pool"
+  type        = string
+  default     = "Standard_B2s_v2"
+}

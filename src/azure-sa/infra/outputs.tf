@@ -50,3 +50,8 @@ output "log_analytics_workspace_id" {
 output "log_analytics_workspace_name" {
   value = azurerm_log_analytics_workspace.law.name
 }
+
+output "kube_config" {
+  value     = azurerm_kubernetes_cluster.aks.kube_config_raw
+  sensitive = true
+}
