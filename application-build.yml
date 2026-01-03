@@ -55,7 +55,7 @@ stages:
 
     - task: AzureCLI@2
       inputs:
-        azureSubscription: '$(azureSubscriptionConnection)'
+        azureSubscription: 'filevault-azure-connection' 
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
