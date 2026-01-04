@@ -2,54 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: filevault-deployment
-  labels:
-    app: filevault
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: filevault
   template:
-    metadata:
-      labels:
-        app: filevault
     spec:
       containers:
       - name: filevault
         image: filevaultsaacr.azurecr.io/lachlandowfilevault:latest
         ports:
         - containerPort: 3000
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
         env:
-        - name: PORT
-          value: "3000"
-        - name: AZURE_CONTAINER_NAME
-          value: "filevault-container"
-        - name: AZURE_STORAGE_ACCOUNT_NAME
-          valueFrom:
-            secretKeyRef:
-              name: filevault-secrets
-              key: AZURE_STORAGE_ACCOUNT_NAME
         - name: AZURE_STORAGE_ACCOUNT_KEY
           valueFrom:
             secretKeyRef:
-              name: filevault-secrets
+              name: filevault-k8s-secret
               key: AZURE_STORAGE_ACCOUNT_KEY
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 10
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-kv-provider"

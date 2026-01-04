@@ -9,6 +9,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count = var.aks_node_count
     vm_size    = var.aks_vm_size
   }
+  key_vault_secrets_provider {
+    secret_rotation_enabled = true
+  }
 
   identity {
     type = "SystemAssigned"

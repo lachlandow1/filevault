@@ -32,6 +32,21 @@ resource "azurerm_key_vault_access_policy" "aci_policy" {
   secret_permissions = ["Get", "List"]
 }
 
+resource "azurerm_key_vault_access_policy" "user_policy" {
+  key_vault_id = azurerm_key_vault.vault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = "00f09e01-52ff-4064-9471-794218a6c358"
+
+  secret_permissions = ["Get", "List", "Set", "Delete", "Purge", "Recover"]
+}
+
+resource "azurerm_key_vault_access_policy" "aks_policy" {
+  key_vault_id = azurerm_key_vault.vault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_kubernetes_cluster.aks.key_vault_secrets_provider[0].secret_identity[0].object_id
+
+  secret_permissions = ["Get", "List"]
+}
 resource "azurerm_key_vault_secret" "storage_key" {
   name         = "storage-account-key"
   value        = azurerm_storage_account.sa.primary_access_key
