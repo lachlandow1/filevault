@@ -2,9 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: filevault-deployment
+  labels:
+    app: filevault
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: filevault # Must match template labels below
   template:
+    metadata:
+      labels:
+        app: filevault # Must match selector above
     spec:
       containers:
       - name: filevault
@@ -17,6 +25,11 @@ spec:
             secretKeyRef:
               name: filevault-k8s-secret
               key: AZURE_STORAGE_ACCOUNT_KEY
+        - name: AZURE_STORAGE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: filevault-k8s-secret
+              key: AZURE_STORAGE_ACCOUNT_NAME
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/mnt/secrets-store"
