@@ -57,3 +57,13 @@ resource "azurerm_key_vault_secret" "storage_key" {
     azurerm_key_vault_access_policy.terraform_policy
   ]
 }
+
+resource "azurerm_key_vault_secret" "storage_name" {
+  name         = "storage-account-name"
+  value        = azurerm_storage_account.sa.name
+  key_vault_id = azurerm_key_vault.vault.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.terraform_policy
+  ]
+}
