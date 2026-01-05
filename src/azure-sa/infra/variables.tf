@@ -39,3 +39,9 @@ variable "aks_vm_size" {
   type        = string
   default     = "Standard_B2s_v2"
 }
+
+variable "deploy_aci" {
+  description = "Whether to deploy the Azure Container Instance"
+  type        = bool
+  default     = false
+}

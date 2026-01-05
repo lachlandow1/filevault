@@ -1,4 +1,5 @@
 resource "azurerm_container_group" "aci" {
+  count               = var.deploy_aci ? 1 : 0
   name                = "${var.app_name}-aci"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name

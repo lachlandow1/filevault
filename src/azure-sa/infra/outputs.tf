@@ -11,11 +11,11 @@ output "storage_container_name" {
 }
 
 output "aci_fqdn" {
-  value = azurerm_container_group.aci.fqdn
+  value = length(azurerm_container_group.aci) > 0 ? azurerm_container_group.aci[0].fqdn : null
 }
 
 output "aci_ip_address" {
-  value = azurerm_container_group.aci.ip_address
+  value = length(azurerm_container_group.aci) > 0 ? azurerm_container_group.aci[0].ip_address : null
 }
 
 output "container_registry_name" {
