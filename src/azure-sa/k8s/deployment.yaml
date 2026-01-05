@@ -30,6 +30,8 @@ spec:
             secretKeyRef:
               name: filevault-k8s-secret
               key: AZURE_STORAGE_ACCOUNT_NAME
+        - name: AZURE_CONTAINER_NAME
+          value: "uploads"
         volumeMounts:
         - name: secrets-store-inline
           mountPath: "/mnt/secrets-store"
