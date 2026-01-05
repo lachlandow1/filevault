@@ -13,6 +13,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
     secret_rotation_enabled = true
   }
 
+  workload_autoscaler_profile {
+    vertical_pod_autoscaler_enabled = true
+  }
+
   identity {
     type = "SystemAssigned"
   }
