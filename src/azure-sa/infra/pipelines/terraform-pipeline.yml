@@ -56,11 +56,7 @@ stages:
           echo "Validating..."
           terraform validate
 
-          echo "Fixing State (One-time)..."
-          # Remove secrets from state to prevent 403 during refresh (since policy is missing)
-          terraform state rm azurerm_key_vault_secret.storage_key || true
-          terraform state rm azurerm_key_vault_secret.storage_name || true
-
+          
           echo "Planning..."
           terraform plan -out=tfplan -input=false
           

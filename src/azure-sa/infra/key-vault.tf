@@ -47,6 +47,13 @@ resource "azurerm_key_vault_access_policy" "aks_policy" {
 
   secret_permissions = ["Get", "List"]
 }
+# Wait for policy to propagate
+resource "time_sleep" "wait_for_rbac" {
+  create_duration = "60s"
+
+  depends_on = [azurerm_key_vault_access_policy.terraform_policy]
+}
+
 resource "azurerm_key_vault_secret" "storage_key" {
   name         = "storage-account-key"
   value        = azurerm_storage_account.sa.primary_access_key
@@ -54,7 +61,7 @@ resource "azurerm_key_vault_secret" "storage_key" {
 
   depends_on = [
     azurerm_storage_account.sa,
-    azurerm_key_vault_access_policy.terraform_policy
+    time_sleep.wait_for_rbac
   ]
 }
 
@@ -64,6 +71,6 @@ resource "azurerm_key_vault_secret" "storage_name" {
   key_vault_id = azurerm_key_vault.vault.id
 
   depends_on = [
-    azurerm_key_vault_access_policy.terraform_policy
+    time_sleep.wait_for_rbac
   ]
 }
