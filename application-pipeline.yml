@@ -40,9 +40,9 @@ stages:
         cliProjectName: 'filevault-sonarqube'
         cliSources: 'src/azure-sa'
     - bash: |
-        NEW_PARAMS=$(echo $SONARQUBE_SCANNER_PARAMS | sed 's/"sonar.branch.name":"[^"]*"//g' | sed 's/,,/,/g' | sed 's/,}/}/g')
+        NEW_PARAMS=$(echo $SONARQUBE_SCANNER_PARAMS | sed 's/"sonar.branch.name":"[^"]*"//g' | sed 's/"sonar.pullrequest.key":"[^"]*"//g' | sed 's/"sonar.pullrequest.branch":"[^"]*"//g' | sed 's/"sonar.pullrequest.base":"[^"]*"//g' | sed 's/"sonar.pullrequest.provider":"[^"]*"//g' | sed 's/,,/,/g' | sed 's/,}/}/g')
         echo "##vso[task.setvariable variable=SONARQUBE_SCANNER_PARAMS]$NEW_PARAMS"
-        echo "Filtered out sonar.branch.name for Community Edition"
+        echo "Filtered out sonar.branch.name and sonar.pullrequest.* for Community Edition"
       displayName: 'Fix SonarQube Community Parameters'
     - script: npm install
       workingDirectory: src/azure-sa
