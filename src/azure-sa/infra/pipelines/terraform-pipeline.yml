@@ -1,0 +1,108 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - src/azure-sa/infra
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - src/azure-sa/infra
+
+pool:
+  name: Default
+
+variables:
+- group: terraform-state-variables
+
+stages:
+- stage: Plan
+  displayName: 'Terraform Plan'
+  jobs:
+  - job: Terraform_Plan
+    displayName: 'Plan Infrastructure'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+
+    - script: |
+        terraform fmt -check -recursive
+      displayName: 'Terraform Format Check'
+      workingDirectory: src/azure-sa/infra
+
+    - task: AzureCLI@2
+      displayName: 'Terraform Init & Plan'
+      inputs:
+        azureSubscription: 'filevault-azure-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        addSpnToEnvironment: true
+        workingDirectory: 'src/azure-sa/infra'
+        inlineScript: |
+          echo "Initializing Terraform..."
+          terraform init \
+            -backend-config="resource_group_name=$(backendResourceGroup)" \
+            -backend-config="storage_account_name=$(backendStorageAccount)" \
+            -backend-config="container_name=$(backendContainer)" \
+            -backend-config="key=$(backendKey)"
+
+          echo "Validating..."
+          terraform validate
+
+          echo "Planning..."
+          terraform plan -out=tfplan -input=false
+          
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Plan Artifact'
+      inputs:
+        targetPath: 'src/azure-sa/infra/tfplan'
+        artifact: 'tfplan'
+        publishLocation: 'pipeline'
+
+- stage: Apply
+  displayName: 'Terraform Apply'
+  dependsOn: Plan
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: Terraform_Apply
+    displayName: 'Apply Infrastructure'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+        
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Plan Artifact'
+      inputs:
+        buildType: 'current'
+        artifactName: 'tfplan'
+        targetPath: 'src/azure-sa/infra'
+
+    - task: AzureCLI@2
+      displayName: 'Terraform Init & Apply'
+      inputs:
+        azureSubscription: 'filevault-azure-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        addSpnToEnvironment: true
+        workingDirectory: 'src/azure-sa/infra'
+        inlineScript: |
+          echo "Initializing Terraform..."
+          terraform init \
+            -backend-config="resource_group_name=$(backendResourceGroup)" \
+            -backend-config="storage_account_name=$(backendStorageAccount)" \
+            -backend-config="container_name=$(backendContainer)" \
+            -backend-config="key=$(backendKey)"
+
+          echo "Applying..."
+          # chmod is sometimes needed if the artifact lost permissions
+          chmod +x tfplan
+          terraform apply -auto-approve tfplan
